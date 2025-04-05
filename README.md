@@ -162,3 +162,4 @@ Streamlit
 
 Master-slave architecture allows horizontal scaling and real-time visibility into the processing pipeline via the dashboard.
 
+![Demo Screenshot](assets/demo.png)
