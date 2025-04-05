@@ -1,80 +1,164 @@
-# Distributed CSV Processor
+# Distributed CSV Processing System
 
-This project implements a distributed CSV processing system with a master-slave architecture. It uses RabbitMQ for messaging, Flask for HTTP routing, Flask-SocketIO for real-time communication, and Streamlit for the dashboard.
+This project implements a **distributed system** for processing CSV files using a **master-slave architecture** with:
 
-## Architecture
+- 📨 **RabbitMQ** for messaging  
+- 🌐 **Flask** for API endpoints  
+- ⚡ **Flask-SocketIO** for real-time updates  
+- 📊 **Streamlit** for the dashboard
 
-- **Master Node**: Coordinates the system and exposes a Flask API and SocketIO server.
-- **Slave Nodes**: Process CSV data and send results back to the master.
-- **RabbitMQ**: Provides message queues for task distribution and result collection.
-- **Streamlit Dashboard**: Displays processed CSV data in real-time.
+---
 
-## Setup
+## 🚀 Architecture Overview
 
-### Prerequisites
+### 🧠 Master Node
+- Runs a Flask server with REST API endpoints
+- Manages Socket.IO connections for real-time updates
+- Consumes processed results from slave nodes
 
-- Python 3.6+
-- RabbitMQ server
+### 🛠️ Slave Nodes
+- Process CSV data independently
+- Can be scaled horizontally
+- Send results back to the master via RabbitMQ
 
-### Installation
+### 📬 RabbitMQ
+- Acts as a message broker
+- Manages task queue for CSV processing
+- Distributes tasks to available slave nodes
 
-1. Clone the repository:
-git clone <repository-url>
-cd csv_processor
-Copy
-2. Create and activate a virtual environment:
-python3 -m venv venv
-source venv/bin/activate
-Copy
-3. Install dependencies:
+### 📈 Streamlit Dashboard
+- Real-time visualization of processed data
+- Connects to master via HTTP and Socket.IO
+
+---
+
+## ⚙️ Setup Instructions
+
+### 🧾 Prerequisites
+- Python 3.8+
+- RabbitMQ Server
+
+### 📦 Required Python Packages
+
+Install dependencies:
+
+```bash
 pip install -r requirements.txt
-Copy
-4. Ensure RabbitMQ is running:
-sudo systemctl start rabbitmq-server
-Copy
-## Running the System
+```
+Start RabbitMQ Server
+On Ubuntu/Debian:
 
-1. Start the master node:
+```bash
+sudo service rabbitmq-server start
+```
+
+On macOS with Homebrew:
+```bash
+brew services start rabbitmq
+```
+
+🔧 Running the System
+1️⃣ Start the Master Node
+
+```bash
 python run_master.py
-Copy
-2. Start one or more slave nodes:
-python run_slave.py worker1
-python run_slave.py worker2
-Add more workers as needed
-Copy
-3. Start the Streamlit dashboard:
+```
+
+2️⃣ Start One or More Slave Nodes
+```bash
+python run_slave.py slave1
+python run_slave.py slave2
+```
+# Add more as needed
+3️⃣ Start the Streamlit Dashboard
+
+```bash
 python run_dashboard.py
-Copy
-4. Publish a CSV message:
-python publish_csv.py [path-to-csv-file]
-Copy
-## Design Decisions
+# or
+streamlit run streamlit_app/dashboard.py
+```
 
-- **Idempotency**: Both master and slave nodes track processed message IDs to avoid processing duplicates.
-- **Error Handling**: Messages are requeued on processing errors with a limit on retry attempts.
-- **Scalability**: Slave nodes can be easily added to scale out processing capacity.
-- **Real-time Updates**: SocketIO provides immediate updates to the dashboard when new data is processed.
+4️⃣ Publish a CSV File for Processing
+```bash
+python publish_csv.py your_data.csv
+```
 
-## Testing
+📁 System Components
+📡 Master Node
+Key Files:
 
-Each component was tested individually:
+master/app.py: Flask app with API endpoints
 
-- RabbitMQ Consumer: Tested by publishing messages and verifying consumption.
-- Flask API: Tested using curl and browser requests.
-- SocketIO: Tested using the Streamlit dashboard connection.
-- CSV Processing: Tested with various CSV formats and error cases.
-- Distributed Workers: Tested by running multiple worker instances.
-- Streamlit Dashboard: Tested by observing real-time updates.
+master/socketio_handler.py: Handles Socket.IO connections
 
-## Hidden Challenge Solution
+master/rabbitmq_consumer.py: Consumes results from RabbitMQ
 
-The system implements message idempotency by tracking processed message IDs. This prevents duplicate processing if a message is received multiple times, which can happen in distributed messaging systems due to various failure scenarios.
-Step 8: Create a Requirements File
-Copy# requirements.txt
-Flask==2.0.1
-Flask-SocketIO==5.1.1
-pika==1.2.0
-streamlit==1.8.1
-pandas==1.3.3
-requests==2.26.0
-python-socketio==5.5.0
+master/csv_processor.py: CSV utility functions
+
+🧵 Slave Nodes
+Key File:
+```bash
+slave/worker.py: Processes CSV tasks from RabbitMQ and returns results
+```
+📊 Streamlit Dashboard
+Key File:
+```bash
+streamlit_app/dashboard.py: Real-time UI for processed data
+```
+✅ Testing
+Run Full Test Suite
+
+```bash
+python run_tests.py
+```
+Run Individual Tests
+```bash
+python tests/test_csv_processor.py
+python tests/test_flask_api.py
+python tests/test_idempotency.py
+python tests/test_stress.py
+python tests/test_system.py
+```
+📐 Design Decisions & Trade-offs
+🔁 Message Handling
+Idempotency: Unique IDs for all messages to avoid duplication
+
+Durability: Messages survive broker restarts
+
+Manual Acknowledgment: Only remove message after successful processing
+
+🧮 Data Consistency
+Master node stores latest processed state
+
+Updates fully replace previous data
+
+⚡ Real-time Updates
+Socket.IO used for immediate dashboard updates
+
+Polling fallback for robustness
+
+🛡️ Error Handling
+API error handlers in place
+
+Failed tasks requeued
+
+HTTP status codes well-managed
+
+📈 Scalability
+Horizontally scalable slave nodes
+
+RabbitMQ fair dispatch ensures balanced task load
+
+🧠 Conclusion
+This distributed system demonstrates how to build a scalable CSV processing pipeline using:
+
+Python
+
+RabbitMQ
+
+Flask
+
+Streamlit
+
+Master-slave architecture allows horizontal scaling and real-time visibility into the processing pipeline via the dashboard.
+

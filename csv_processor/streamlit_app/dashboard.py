@@ -102,3 +102,12 @@ if st.session_state.data:
 else:
     st.info("No data available yet. Waiting for CSV processing...")
 
+# If using polling, fetch data periodically
+if 'connected' not in st.session_state or not st.session_state.connected:
+    # Automatically refresh data every 5 seconds
+    time.sleep(5)
+    data = fetch_data()
+    if data:
+        st.session_state.data = data
+        st.session_state.last_update = time.strftime("%Y-%m-%d %H:%M:%S")
+        st.experimental_rerun()
